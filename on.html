@@ -1,160 +1,278 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIMLOG - Enterprise System</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Google Fonts: Inter untuk tampilan UI yang bersih dan modern -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#120404" />
+  <meta name="color-scheme" content="dark" />
 
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
+  <title>SIMLOG - Enterprise System</title>
+  <meta name="description" content="SIMLOG Logistic Management - Logistik OJK DIY" />
 
-        /* Background Grid Pattern halus */
-        .bg-grid-pattern {
-            background-size: 40px 40px;
-            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-        }
+  <!-- PWA Android / Desktop -->
+  <link rel="manifest" href="./manifest.json" />
 
-        /* Animasi Progress Bar */
-        @keyframes progressFill {
-            0% { width: 0%; }
-            100% { width: 100%; }
-        }
+  <!-- iPhone / iPad PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="SIMLOG" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-        .animate-progress {
-            animation: progressFill 3s ease-in-out forwards;
-        }
+  <!-- Icons -->
+  <link rel="icon" href="./favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="./icon-180.png" />
+  <link rel="apple-touch-icon" sizes="152x152" href="./icon-152.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png" />
+  <link rel="apple-touch-icon" sizes="192x192" href="./icon-192.png" />
 
-        /* Efek Fade In halus untuk konten */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-        .animate-fade-up {
-            animation: fadeInUp 0.8s ease-out forwards;
-        }
-    </style>
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+      --vh: 1vh;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      width: 100%; height: 100%; margin: 0; overflow: hidden; background: #090909;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      overscroll-behavior: none; color: #fff;
+    }
+    body { position: fixed; inset: 0; }
+
+    .app-shell { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100dvh; height: calc(var(--vh) * 100); overflow: hidden; background: #090909; }
+    .app-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; background: #fff; opacity: 0; transform: scale(1.006); transition: opacity 700ms cubic-bezier(.22,1,.36,1), transform 700ms cubic-bezier(.22,1,.36,1), filter 700ms ease; filter: saturate(.98) contrast(.99); }
+    .app-frame.is-ready { opacity: 1; transform: scale(1); }
+
+    .splash-screen {
+      position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center;
+      min-height: 100vh; min-height: 100dvh; min-height: calc(var(--vh) * 100);
+      padding: calc(28px + var(--safe-top)) calc(22px + var(--safe-right)) calc(28px + var(--safe-bottom)) calc(22px + var(--safe-left));
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 18% 16%, rgba(239,68,68,.28), transparent 33%),
+        radial-gradient(circle at 84% 84%, rgba(244,63,94,.20), transparent 36%),
+        radial-gradient(circle at 50% 45%, rgba(127,29,29,.20), transparent 45%),
+        linear-gradient(135deg, #070707 0%, #140404 45%, #310707 100%);
+      transition: opacity 760ms cubic-bezier(.22,1,.36,1), visibility 760ms ease, transform 760ms cubic-bezier(.22,1,.36,1);
+    }
+    .splash-screen.is-hidden { opacity: 0; visibility: hidden; transform: scale(1.018); pointer-events: none; }
+    .bg-grid-pattern { position: absolute; inset: 0; background-size: 42px 42px; background-image: linear-gradient(to right, rgba(255,255,255,.045) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.045) 1px, transparent 1px); mask-image: radial-gradient(circle at center, #000 0%, transparent 78%); opacity: .6; }
+    .scanline { position: absolute; inset: -45% 0 auto 0; height: 42%; background: linear-gradient(to bottom, transparent, rgba(255,255,255,.05), transparent); animation: scanMove 4.8s ease-in-out infinite; transform: rotate(-8deg); }
+    @keyframes scanMove { 0% { top: -48%; opacity: 0; } 18% { opacity: .85; } 100% { top: 112%; opacity: 0; } }
+    .orb { position: absolute; border-radius: 999px; filter: blur(50px); opacity: .76; animation: floatOrb 7.4s ease-in-out infinite alternate; }
+    .orb.one { width: 310px; height: 310px; top: -115px; left: -96px; background: rgba(220,38,38,.24); }
+    .orb.two { width: 340px; height: 340px; right: -130px; bottom: -135px; background: rgba(244,63,94,.18); animation-delay: -1.5s; }
+    .orb.three { width: 190px; height: 190px; left: 58%; top: 12%; background: rgba(127,29,29,.23); animation-delay: -3s; }
+    @keyframes floatOrb { from { transform: translate3d(0,0,0) scale(1); } to { transform: translate3d(18px,-14px,0) scale(1.08); } }
+
+    .splash-card { position: relative; width: min(440px, 100%); text-align: center; animation: cardIn .95s cubic-bezier(.22,1,.36,1) both; }
+    @keyframes cardIn { from { opacity: 0; transform: translateY(18px) scale(.982); filter: blur(7px); } to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
+    .logo-wrap { position: relative; width: 102px; height: 102px; margin: 0 auto 27px; display: grid; place-items: center; }
+    .logo-pulse { position: absolute; inset: -14px; border-radius: 30px; background: linear-gradient(135deg, rgba(220,38,38,.68), rgba(244,63,94,.18), rgba(255,255,255,.08)); filter: blur(13px); opacity: .78; animation: pulseGlow 2.45s ease-in-out infinite; }
+    @keyframes pulseGlow { 0%,100% { transform: scale(.92); opacity: .46; } 50% { transform: scale(1.05); opacity: .9; } }
+    .logo-box { position: relative; width: 90px; height: 90px; border-radius: 27px; display: grid; place-items: center; background: linear-gradient(145deg, rgba(255,255,255,.14), rgba(255,255,255,.035)), rgba(16,16,16,.74); border: 1px solid rgba(255,255,255,.14); box-shadow: 0 25px 70px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.14); backdrop-filter: blur(16px); }
+    .logo-box::after { content: ''; position: absolute; inset: 10px; border-radius: 21px; border: 1px solid rgba(248,113,113,.22); pointer-events: none; }
+    .logo-icons { display: flex; align-items: center; justify-content: center; gap: 9px; }
+    .cube { color: #ef4444; font-size: 39px; filter: drop-shadow(0 10px 18px rgba(239,68,68,.35)); animation: cubeLift 2.8s ease-in-out infinite; }
+    .sync { color: rgba(255,255,255,.58); font-size: 18px; animation: syncPulse 2s ease-in-out infinite; }
+    @keyframes cubeLift { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-4px) rotate(-3deg); } }
+    @keyframes syncPulse { 0%,100% { opacity: .45; transform: translateX(0); } 50% { opacity: 1; transform: translateX(2px); } }
+
+    .brand-title { margin: 0; font-size: clamp(48px, 12vw, 64px); line-height: .95; font-weight: 900; letter-spacing: -.055em; text-shadow: 0 18px 44px rgba(0,0,0,.36); }
+    .brand-gradient { color: transparent; background: linear-gradient(90deg, #ef4444, #fb7185, #fca5a5); background-clip: text; -webkit-background-clip: text; }
+    .brand-subtitle { margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; color: rgba(229,229,229,.7); font-size: 11px; font-weight: 800; letter-spacing: .28em; text-transform: uppercase; }
+    .brand-dot { width: 5px; height: 5px; border-radius: 999px; background: #ef4444; box-shadow: 0 0 18px rgba(239,68,68,.9); flex: 0 0 auto; }
+    .system-pill { width: fit-content; max-width: 100%; margin: 24px auto 0; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 13px; border-radius: 999px; color: rgba(255,255,255,.7); font-size: 11px; font-weight: 800; letter-spacing: .08em; background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.10); backdrop-filter: blur(14px); }
+    .system-pill i { color: #f87171; }
+
+    .loader-area { width: 100%; margin-top: 42px; text-align: left; }
+    .loader-meta { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 11px; color: rgba(212,212,212,.82); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 800; letter-spacing: .04em; }
+    .loader-track { position: relative; height: 8px; width: 100%; overflow: hidden; border-radius: 999px; background: rgba(23,23,23,.88); border: 1px solid rgba(255,255,255,.07); box-shadow: inset 0 1px 4px rgba(0,0,0,.45); }
+    .loader-fill { position: absolute; inset: 0 auto 0 0; width: 0%; border-radius: inherit; background: linear-gradient(90deg, #991b1b, #ef4444, #fb7185); box-shadow: 0 0 28px rgba(239,68,68,.42); transition: width 260ms cubic-bezier(.22,1,.36,1); }
+    .loader-fill::after { content: ''; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,.36) 44%, transparent 68%); animation: shine 1.65s linear infinite; }
+    @keyframes shine { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+    .loader-hint { margin-top: 13px; text-align: center; color: rgba(212,212,212,.58); font-size: 11px; line-height: 1.55; }
+
+    .install-fab { position: fixed; right: calc(16px + var(--safe-right)); bottom: calc(16px + var(--safe-bottom)); z-index: 50; display: none; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,.14); border-radius: 999px; padding: 11px 14px; color: #fff; background: linear-gradient(90deg, rgba(185,28,28,.96), rgba(244,63,94,.96)); box-shadow: 0 16px 35px rgba(244,63,94,.24); font-weight: 800; font-size: 12px; cursor: pointer; }
+    .install-fab.is-show { display: inline-flex; }
+    .fallback-card { position: fixed; left: 50%; bottom: calc(22px + var(--safe-bottom)); transform: translateX(-50%) translateY(18px); z-index: 9998; width: min(430px, calc(100% - 30px)); display: none; padding: 14px; border-radius: 22px; background: rgba(14,14,14,.9); border: 1px solid rgba(255,255,255,.12); box-shadow: 0 24px 80px rgba(0,0,0,.45); backdrop-filter: blur(18px); color: #fff; }
+    .fallback-card.is-show { display: block; animation: fallbackIn .45s ease both; }
+    @keyframes fallbackIn { to { transform: translateX(-50%) translateY(0); } }
+    .fallback-card p { margin: 0 0 10px; color: rgba(245,245,245,.78); font-size: 12px; line-height: 1.45; }
+    .fallback-card button { width: 100%; border: 0; border-radius: 16px; padding: 12px 14px; color: #fff; font-weight: 800; background: linear-gradient(90deg, #dc2626, #f43f5e); box-shadow: 0 12px 28px rgba(244,63,94,.28); cursor: pointer; }
+
+    @media (max-width: 380px) { .logo-wrap { width: 84px; height: 84px; margin-bottom: 22px; } .logo-box { width: 78px; height: 78px; border-radius: 23px; } .cube { font-size: 33px; } .brand-subtitle { font-size: 9.5px; letter-spacing: .20em; gap: 8px; } .loader-area { margin-top: 34px; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; } }
+  </style>
 </head>
-<body class="bg-neutral-900 text-white h-screen flex flex-col items-center justify-center relative overflow-hidden">
+<body>
+  <main class="app-shell" aria-label="SIMLOG Native Web Shell">
+    <iframe id="appFrame" class="app-frame" title="SIMLOG Application" src="about:blank" allow="camera; microphone; geolocation; clipboard-read; clipboard-write; fullscreen; web-share; autoplay" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  </main>
 
-    <!-- Background Layers -->
-    <!-- Gradient dasar (Nuansa Merah Gelap) -->
-    <div class="absolute inset-0 bg-gradient-to-br from-neutral-900 via-[#1a0505] to-red-950"></div>
-    <!-- Pola Grid -->
-    <div class="absolute inset-0 bg-grid-pattern opacity-50"></div>
-    <!-- Efek Glow di pojok -->
-    <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div class="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-red-600/20 rounded-full blur-[100px]"></div>
-        <div class="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-rose-600/10 rounded-full blur-[100px]"></div>
+  <section id="splashScreen" class="splash-screen" aria-live="polite">
+    <div class="orb one"></div><div class="orb two"></div><div class="orb three"></div><div class="bg-grid-pattern"></div><div class="scanline"></div>
+    <div class="splash-card">
+      <div class="logo-wrap" aria-hidden="true"><div class="logo-pulse"></div><div class="logo-box"><div class="logo-icons"><i class="fa-solid fa-cube cube"></i><i class="fa-solid fa-arrow-right-arrow-left sync"></i></div></div></div>
+      <h1 class="brand-title">SIM<span class="brand-gradient">LOG</span></h1>
+      <div class="brand-subtitle"><span>Logistic</span><span class="brand-dot"></span><span>Management</span></div>
+      <div class="system-pill"><i class="fa-solid fa-shield-halved"></i><span>Secure Enterprise Workspace</span></div>
+      <div class="loader-area">
+        <div class="loader-meta"><span id="statusText">MENYIAPKAN SISTEM...</span><span id="percentageText">0%</span></div>
+        <div class="loader-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Memuat aplikasi"><div id="loaderFill" class="loader-fill"></div></div>
+        <div id="loaderHint" class="loader-hint">Membuka SIMLOG dalam mode aplikasi penuh tanpa berpindah halaman.</div>
+      </div>
     </div>
+  </section>
 
-    <!-- Main Content -->
-    <div class="z-10 flex flex-col items-center w-full max-w-md px-6 animate-fade-up">
-        
-        <!-- Logo Section -->
-        <div class="relative mb-8 group">
-            <!-- Glow effect di belakang logo -->
-            <div class="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-rose-600 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
-            
-            <!-- Logo Container -->
-            <div class="relative bg-neutral-900 p-5 rounded-2xl ring-1 ring-white/10 shadow-2xl flex items-center justify-center">
-                <!-- Ikon kombinasi: Gudang & Koneksi -->
-                <i class="fa-solid fa-cube text-4xl text-red-500 mr-3"></i>
-                <i class="fa-solid fa-arrow-right-arrow-left text-xl text-neutral-500"></i>
-            </div>
-        </div>
+  <button id="installBtn" class="install-fab" type="button"><i class="fa-solid fa-download"></i><span>Install SIMLOG</span></button>
 
-        <!-- Brand Name -->
-        <div class="text-center mb-10">
-            <h1 class="text-5xl font-extrabold tracking-tight text-white mb-2 drop-shadow-lg">
-                SIM<span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-rose-400">LOG</span>
-            </h1>
-            <div class="flex items-center justify-center gap-2 text-neutral-400 text-xs font-semibold tracking-[0.3em] uppercase">
-                <span>Logistic</span>
-                <span class="w-1 h-1 rounded-full bg-red-500"></span>
-                <span>Management</span>
-            </div>
-        </div>
+  <div id="fallbackCard" class="fallback-card" aria-live="polite">
+    <p><strong>SIMLOG belum tampil.</strong><br />Jika halaman tidak muncul, kemungkinan browser/server tujuan membatasi tampilan iframe.</p>
+    <button id="openFallback" type="button"><i class="fa-solid fa-up-right-from-square"></i> Buka SIMLOG</button>
+  </div>
 
-        <!-- System Loading Bar -->
-        <div class="w-full space-y-2">
-            <div class="flex justify-between text-xs font-mono text-neutral-400">
-                <span id="status-text">INITIALIZING...</span>
-                <span id="percentage">0%</span>
-            </div>
-            
-            <!-- Bar Container -->
-            <div class="h-1.5 w-full bg-neutral-800 rounded-full overflow-hidden ring-1 ring-white/5">
-                <!-- Bar Fill -->
-                <div class="h-full bg-gradient-to-r from-red-600 to-rose-500 animate-progress relative">
-                    <!-- Shine effect on bar -->
-                    <div class="absolute top-0 right-0 bottom-0 w-full bg-gradient-to-l from-white/20 to-transparent"></div>
-                </div>
-            </div>
-        </div>
+  <script>
+    const targetUrl = "https://script.google.com/macros/s/AKfycbwHc4NiUvVEgupgj4WAjHXaygdj_1hH8XTuEHoDABU9Dj06jTRTxdCbJI8fAYiHzou8zw/exec";
+    const appFrame = document.getElementById('appFrame');
+    const splashScreen = document.getElementById('splashScreen');
+    const statusText = document.getElementById('statusText');
+    const percentageText = document.getElementById('percentageText');
+    const loaderFill = document.getElementById('loaderFill');
+    const loaderTrack = document.querySelector('.loader-track');
+    const loaderHint = document.getElementById('loaderHint');
+    const fallbackCard = document.getElementById('fallbackCard');
+    const openFallback = document.getElementById('openFallback');
+    const installBtn = document.getElementById('installBtn');
 
-    </div>
+    const minSplashTime = 2600;
+    const maxSplashTime = 9000;
+    const startedAt = Date.now();
+    let progress = 0, frameLoaded = false, splashClosed = false, deferredPrompt = null;
 
-    <!-- Footer: Secure & Version -->
-    <div class="absolute bottom-8 flex flex-col items-center gap-2 opacity-60 z-10">
-        <div class="flex items-center gap-2 text-neutral-500 text-[10px] uppercase tracking-wider">
-            <i class="fa-solid fa-shield-halved"></i> Secure Connection
-        </div>
-        <div class="text-neutral-400 text-[10px]">
-            &copy; 2025 Logistik OJK DIY
-        </div>
-    </div>
+    function withLoginParam() {
+      // Cache buster membuat logout / reset selalu kembali segar ke halaman awal aplikasi/login.
+      const separator = targetUrl.includes('?') ? '&' : '?';
+      return `${targetUrl}${separator}shell=simlog&t=${Date.now()}`;
+    }
 
-    <script>
-        // Konfigurasi
-        const targetUrl = "https://script.google.com/macros/s/AKfycbwHc4NiUvVEgupgj4WAjHXaygdj_1hH8XTuEHoDABU9Dj06jTRTxdCbJI8fAYiHzou8zw/exec";
-        const duration = 3000; // 3 detik
+    function setProgress(value) {
+      progress = Math.max(progress, Math.min(value, 100));
+      const rounded = Math.floor(progress);
+      loaderFill.style.width = rounded + '%';
+      percentageText.textContent = rounded + '%';
+      loaderTrack.setAttribute('aria-valuenow', String(rounded));
+      if (rounded < 22) statusText.textContent = 'MENYIAPKAN SISTEM...';
+      else if (rounded < 48) statusText.textContent = 'MENGHUBUNGKAN SERVER...';
+      else if (rounded < 72) statusText.textContent = 'MEMUAT MODUL LOGISTIK...';
+      else if (rounded < 95) statusText.textContent = 'MENYINKRONKAN DATA...';
+      else { statusText.textContent = 'MEMBUKA APLIKASI...'; statusText.classList.add('text-red-300'); }
+    }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const statusText = document.getElementById('status-text');
-            const percentageText = document.getElementById('percentage');
-            
-            let progress = 0;
-            const intervalTime = 30; // Update setiap 30ms
-            const step = 100 / (duration / intervalTime);
+    function showSplash(text = 'MENYIAPKAN SISTEM...') {
+      splashClosed = false; frameLoaded = false; progress = 0; setProgress(0);
+      statusText.textContent = text; loaderHint.textContent = 'Membuka SIMLOG dalam mode aplikasi penuh tanpa berpindah halaman.';
+      splashScreen.style.display = 'grid';
+      requestAnimationFrame(() => splashScreen.classList.remove('is-hidden'));
+      appFrame.classList.remove('is-ready');
+      fallbackCard.classList.remove('is-show');
+    }
 
-            const timer = setInterval(() => {
-                progress += step;
-                
-                // Update Persentase
-                if (progress > 100) progress = 100;
-                percentageText.innerText = Math.floor(progress) + "%";
+    function closeSplash() {
+      if (splashClosed) return;
+      splashClosed = true; setProgress(100); loaderHint.textContent = 'Aplikasi siap digunakan.';
+      appFrame.classList.add('is-ready');
+      setTimeout(() => splashScreen.classList.add('is-hidden'), 260);
+      setTimeout(() => splashScreen.style.display = 'none', 1050);
+    }
 
-                // Update Teks Status secara dinamis
-                if (progress > 20 && progress < 50) {
-                    statusText.innerText = "AUTHENTICATING...";
-                } else if (progress >= 50 && progress < 80) {
-                    statusText.innerText = "LOADING MODULES...";
-                } else if (progress >= 80) {
-                    statusText.innerText = "REDIRECTING...";
-                    statusText.classList.add("text-red-400");
-                }
+    function tryCloseWhenReady() {
+      const elapsed = Date.now() - startedAt;
+      setTimeout(closeSplash, Math.max(0, minSplashTime - elapsed));
+    }
 
-                if (progress >= 100) {
-                    clearInterval(timer);
-                    setTimeout(() => {
-                        window.location.href = targetUrl;
-                    }, 200); // Sedikit delay agar user melihat 100%
-                }
-            }, intervalTime);
-        });
-    </script>
+    function reloadToLogin() {
+      showSplash('KELUAR DARI SESI...');
+      setTimeout(() => {
+        appFrame.src = 'about:blank';
+        setTimeout(() => { appFrame.src = withLoginParam(); }, 120);
+      }, 320);
+    }
+
+    const progressTimer = setInterval(() => {
+      if (splashClosed) return;
+      if (!frameLoaded) {
+        const inc = progress < 40 ? 2.55 : progress < 70 ? 1.35 : 0.48;
+        setProgress(Math.min(progress + inc, 92));
+      } else { setProgress(progress + 4.8); }
+    }, 130);
+
+    appFrame.addEventListener('load', () => { frameLoaded = true; setProgress(96); tryCloseWhenReady(); });
+    appFrame.addEventListener('error', () => { statusText.textContent = 'KONEKSI TERTAHAN...'; loaderHint.textContent = 'Menunggu izin tampilan dari server tujuan.'; fallbackCard.classList.add('is-show'); });
+
+    // Logout handler: dari dalam aplikasi Apps Script panggil parent.postMessage('SIMLOG_LOGOUT', '*') saat tombol logout diklik.
+    window.addEventListener('message', (event) => {
+      const data = event.data;
+      const isLogout = data === 'SIMLOG_LOGOUT' || (data && (data.type === 'SIMLOG_LOGOUT' || data.action === 'logout'));
+      const isReloadLogin = data === 'SIMLOG_LOGIN' || (data && data.type === 'SIMLOG_LOGIN');
+      if (isLogout || isReloadLogin) reloadToLogin();
+      if (data && data.type === 'SIMLOG_FULLSCREEN') requestNativeFullscreen();
+    });
+
+    function requestNativeFullscreen() {
+      const el = document.documentElement;
+      if (document.fullscreenElement) return;
+      if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    }
+
+    // Browser hanya mengizinkan fullscreen setelah gesture user; PWA tetap fullscreen via manifest.
+    window.addEventListener('pointerdown', requestNativeFullscreen, { once: true, passive: true });
+
+    setTimeout(() => {
+      if (!splashClosed) {
+        appFrame.classList.add('is-ready');
+        splashScreen.classList.add('is-hidden');
+        setTimeout(() => splashScreen.style.display = 'none', 900);
+        fallbackCard.classList.add('is-show');
+      }
+    }, maxSplashTime);
+
+    openFallback.addEventListener('click', () => window.open(targetUrl, '_blank', 'noopener,noreferrer'));
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault(); deferredPrompt = event; installBtn.classList.add('is-show');
+    });
+    installBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      installBtn.classList.remove('is-show');
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice.catch(() => null);
+      deferredPrompt = null;
+    });
+    window.addEventListener('appinstalled', () => installBtn.classList.remove('is-show'));
+
+    function applyViewportHeight() { document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`); }
+    applyViewportHeight();
+    window.addEventListener('resize', applyViewportHeight, { passive: true });
+    window.addEventListener('orientationchange', applyViewportHeight, { passive: true });
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(console.warn));
+    }
+
+    window.addEventListener('DOMContentLoaded', () => { appFrame.src = withLoginParam(); });
+  </script>
 </body>
 </html>
